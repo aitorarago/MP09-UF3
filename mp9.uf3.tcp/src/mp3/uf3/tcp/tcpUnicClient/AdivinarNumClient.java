@@ -10,10 +10,11 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
-public class TcpClient {
+public class AdivinarNumClient {
     static int PORT;
     private final InetAddress serverIP;
-    TcpClient(String host,int port) throws UnknownHostException {
+    private final Scanner sc = new Scanner(System.in);
+    AdivinarNumClient(String host,int port) throws UnknownHostException {
         PORT=port;
         serverIP = InetAddress.getByName(host);
         connect(serverIP.getHostAddress(), port);
@@ -24,7 +25,7 @@ public class TcpClient {
     public void connect(String address, int port) {
         String serverData;
         String request;
-        boolean continueConnected=true;
+        boolean continueConnected=false;
         Socket socket;
         BufferedReader in;
         PrintStream out;
@@ -32,9 +33,11 @@ public class TcpClient {
             socket = new Socket(InetAddress.getByName(address), port);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintStream(socket.getOutputStream());
+            System.out.println("conectado");
 //el client atén el port fins que decideix finalitzar
             while(!continueConnected){
                 serverData = in.readLine();
+                if(mustFinish(serverData))break;
 //processament de les dades rebudes i obtenció d'una nova petició
                 request = getRequest(serverData);
 //enviament de la petició
@@ -42,26 +45,22 @@ public class TcpClient {
                 out.flush(); //assegurem que s'envia
 //comprovem si la petició és un petició de finalització i en cas
 //que ho sigui ens preparem per sortir del bucle
-                continueConnected = mustFinish(request);
+                continueConnected = mustFinish(serverData);
             }
 
             close(socket);
-        } catch (UnknownHostException ex) {
-            System.out.println(Logger.getLogger(ex.toString()));
         } catch (IOException ex) {
             System.out.println(Logger.getLogger(ex.toString()));
         }
     }
 
     private boolean mustFinish(String request) {
-        if(request.equals("adeu")|request.equals("dw")|request.equals("deu")|request.equals("adios")|request.equals("Adios")) return false;
-        else return true;
+        return (request.equals("Correcte"));
     }
 
     private String getRequest(String serverData) {
         System.out.println("Servidor: "+serverData);
-        Scanner sc = new Scanner(System.in);
-        System.out.println("INTRODUCE LO QUE QUIERAS CONTESTAR AL SERVER:");
+        System.out.println("INTRODUCE EL NUEVO NUMERO:");
         return sc.nextLine();
     }
 
@@ -86,6 +85,6 @@ public class TcpClient {
     }
 
     public static void main(String[] args) throws UnknownHostException{
-        TcpClient client = new TcpClient("localhost",5566);
+        AdivinarNumClient client = new AdivinarNumClient("localhost",5566);
     }
 }

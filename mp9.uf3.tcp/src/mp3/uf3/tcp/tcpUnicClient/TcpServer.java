@@ -63,9 +63,8 @@ public class TcpServer {
         }
     }
 
-    private boolean isFarewellMessage(String clientMessage) {
-        if(clientMessage.isEmpty())return true;
-        else return false;
+    private boolean isFarewellMessage(String msg) {
+        return !(msg.equals("adéu") | msg.equals("Adeu") | msg.equals("Adéu") | msg.equals("ADEU") | msg.equals("BYE") | msg.equals("bye"));
     }
 
     private String processData(String clientMessage) {
